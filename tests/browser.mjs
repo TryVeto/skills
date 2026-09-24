@@ -137,6 +137,9 @@ try {
   await wait("!!window.release");
   await key("Escape", "Escape"); await evaluate("window.release();window.fetch=window.realFetch"); await sleep(100);
   await check("Stale response cannot reopen reader", "document.querySelector('#reader').hidden && !document.querySelector('#launcher').hidden");
+  await command("Page.navigate", {url:base+"/skill/00000000000000000000"});
+  await wait("location.pathname === '/' && !!document.querySelector('.skill-row')");
+  await check("Removed skill link returns to current library", "document.querySelector('#reader').hidden && document.querySelector('#toast').textContent.includes('no longer')");
   await check("No runtime errors", JSON.stringify(errors.length === 0));
   console.log(JSON.stringify({ passed: checks.length, errors }));
 } catch (error) {

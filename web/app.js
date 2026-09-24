@@ -82,7 +82,7 @@ function select(id, scroll = true) {
 async function json(url) {
   const response = await fetch(url, { cache: "no-store" });
   const result = await response.json();
-  if (!response.ok) throw Error(result.error || "Could not load skills.");
+  if (!response.ok) { const error = Error(result.error || "Could not load skills."); error.status = response.status; throw error; }
   return result;
 }
 async function load() {
@@ -134,6 +134,10 @@ function openSkill(id) { navigate("/skill/" + encodeURIComponent(id)); }
 async function route() {
   const match = location.pathname.match(/^\/skill\/([a-f0-9]{20})$/);
   if (!match) { showLauncher(); return; }
+  if (!skills.some(item => item.id === match[1])) {
+    history.replaceState({}, "", "/"); showLauncher();
+    toast("That skill is no longer in this library."); return;
+  }
   const token = ++request, file = new URLSearchParams(location.search).get("file") || "SKILL.md";
   current = null;
   $("launcher").hidden = true; $("reader").hidden = false; $("reader-title").textContent = "Loading…";
@@ -154,6 +158,18 @@ async function route() {
     if (location.hash) document.getElementById(decodeURIComponent(location.hash.slice(1)))?.scrollIntoView();
   } catch (error) {
     if (token !== request) return;
+    if (error.status === 404) {
+      try {
+        const latest = await json("/api/skills");
+        if (token !== request) return;
+        skills = latest.skills; assignKeys();
+        if (!skills.some(item => item.id === match[1])) {
+          history.replaceState({}, "", "/"); showLauncher();
+          toast("That skill is no longer in this library."); return;
+        }
+      } catch { /* Keep the original document error and retry available. */ }
+    }
+    $("description").hidden = true;
     $("reader-title").textContent = "Couldn’t open this skill"; $("document").append(el("p", error.message));
     const retry = el("button", "Try again"); retry.onclick = route; $("document").append(retry);
   }
