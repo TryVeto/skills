@@ -1,0 +1,12 @@
+{
+  "roots": [
+    {
+      "path": "~/.codex/skills",
+      "label": "Codex"
+    },
+    {
+      "path": "~/.claude/skills",
+      "label": "Claude"
+    }
+  ]
+}

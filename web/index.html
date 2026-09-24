@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark"><title>Skills</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/style.css"><script type="module" src="/app.js"></script>
+</head>
+<body>
+<main id="launcher" class="launcher" tabindex="-1">
+<header class="topbar"><h1>Skills</h1><button id="options" class="icon-button" aria-label="Options" title="Options">•••</button></header>
+<div class="search-wrap"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m16 16 4.5 4.5"></path></svg><input id="find" type="search" placeholder="Find a skill…" aria-label="Find a skill" aria-controls="results" autocomplete="off" spellcheck="false"><button id="focus-search" class="search-shortcut" aria-label="Focus search">⌘ K</button></div>
+<div id="load-error" role="alert" hidden></div>
+<div id="results" aria-label="Skill library"><p class="empty">Loading your skills…</p></div>
+<footer class="hint"><span>Press a key to copy · Enter to open.</span><span id="count"></span></footer>
+<p id="selection" class="sr-only" role="status" aria-live="polite"></p>
+</main>
+<section id="reader" hidden aria-labelledby="reader-title">
+<div class="reader-shell"><header class="reader-nav"><button id="back" class="text-button">← Skills</button><button id="copy" class="primary">Copy skill</button></header>
+<article class="reader-article"><h1 id="reader-title" tabindex="-1"></h1><p id="description"></p><div id="document" class="document"></div>
+<details class="details"><summary>Source & shortcut</summary><div id="source-info"></div><label for="shortcut">Shortcut key</label><select id="shortcut" aria-label="Shortcut key"></select><p class="small">A shortcut pins this skill and copies its exact SKILL.md. Enter opens it.</p><a id="download">Download SKILL.md</a></details>
+</article></div>
+</section>
+<dialog id="settings" aria-labelledby="settings-title"><header class="dialog-head"><h2 id="settings-title">Options</h2><button class="icon-button close" aria-label="Close options">×</button></header><div class="dialog-body">
+<label class="setting"><span>Keyboard shortcuts</span><input id="keys-enabled" type="checkbox"></label>
+<label class="setting"><span>Show pinned only</span><input id="pinned-only" type="checkbox"></label>
+<button id="refresh" class="text-button">Refresh library</button><a id="review" hidden>Open review harness</a>
+<details class="details"><summary>Keyboard shortcuts</summary><p>⌘ / Ctrl K or / to search.<br>↑ ↓ to select · Enter to open.<br>Esc to return or clear search.<br>⌘ / Ctrl Shift C to copy the open skill.<br>Tab to reach every control.</p></details>
+<p class="small">Reads your local skill files. Copying does not install or run a skill.</p><p id="warnings" class="small"></p>
+<a href="https://github.com/tryveto/skills" target="_blank" rel="noopener noreferrer">Source on GitHub</a>
+</div></dialog>
+<dialog id="manual" aria-labelledby="manual-title"><header class="dialog-head"><h2 id="manual-title">Copy manually</h2><button class="icon-button close" aria-label="Close manual copy">×</button></header><div class="dialog-body"><p>Clipboard access is unavailable. Select the text and copy it.</p><textarea id="manual-text" readonly aria-label="Exact skill text"></textarea><button id="select-all">Select all</button></div></dialog>
+<div id="toast" role="status" aria-live="polite" hidden></div>
+</body></html>
