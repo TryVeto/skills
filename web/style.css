@@ -10,3 +10,5 @@ dialog{width:440px;max-width:calc(100vw - 28px);max-height:calc(100dvh - 40px);b
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 
 .group-heading{font-size:11px;font-weight:500;line-height:1.5;color:var(--muted);letter-spacing:.15px;margin:14px 10px 6px}.group-heading:first-child{margin-top:4px}.group-rule{margin:18px 10px 0}
+
+.footer-links{display:flex;gap:18px;align-items:center}.example-intro{font-size:16px;line-height:1.6;color:var(--muted);margin:18px 0 36px}.example-section{border-top:1px solid var(--line);padding:25px 0 30px}.example-section h2{font-size:21px;line-height:1.4;letter-spacing:-.4px;margin:0 0 10px}.example-section>p{line-height:1.7;margin:0 0 16px}.example-actions{display:flex;align-items:center;gap:22px;flex-wrap:wrap;margin-top:20px}.example-actions .primary{text-decoration:none;display:inline-block}.example-actions>a:not(.primary){font-size:13px;color:var(--muted)}.example-section .details{border:0;margin-top:17px;padding-top:0}.examples-page .text-button{text-decoration:none}

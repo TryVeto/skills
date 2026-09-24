@@ -88,6 +88,12 @@ The app does not install or change a global proxy. Direct loopback access works 
 
 An optional `review_url` config value can link to an existing local review tool from Options. Only loopback HTTP addresses are accepted. The launcher neither starts that tool nor imports its database.
 
+## Local examples
+
+An optional `examples` array in `config.local.json` adds an **Examples** link to the launcher. Each entry supports `title`, `description`, `url`, `control_url`, `notes_url`, `review_url`, `brief`, `note`, and `kind` (`video` for a watch action). Example URLs open separately from the launcher; use an isolated local artifact server for executable examples. Keep private test outputs and configuration out of Git.
+
+The gallery at `/?examples=1` distinguishes the skill result from the same task run without it. It does not infer a winner or approval.
+
 ## Local data and security
 
 Your skills remain in their original folders. Config, local data, and verification output are ignored by Git. This repository distributes the launcher, not anyone's private skill library.

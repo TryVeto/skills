@@ -76,7 +76,7 @@ try {
   await command("Input.insertText", { text: "frontend" });
   await check("Search filters", "[...document.querySelectorAll('.skill-row')].length > 0 && document.querySelectorAll('.skill-row').length < 10");
   await key("Enter", "Enter");
-  await wait("!document.querySelector('#copy').disabled && !document.querySelector('#reader').hidden");
+  await wait("document.querySelector('#copy') && !document.querySelector('#copy').disabled && !document.querySelector('#reader').hidden");
   await check("Enter opens a real document", "document.querySelector('#document').textContent.length > 100");
   await screenshot("reader-desktop");
   await evaluate("document.querySelector('#copy').click()");
@@ -93,10 +93,10 @@ try {
   await wait("document.querySelector('#toast').textContent.startsWith('Copied')");
   await check("Assigned key selects matching row", "document.querySelector('.skill-row.selected .shortcut').textContent === 'Z'");
   await key("Enter", "Enter");
-  await wait("!document.querySelector('#copy').disabled && !document.querySelector('#reader').hidden");
+  await wait("document.querySelector('#copy') && !document.querySelector('#copy').disabled && !document.querySelector('#reader').hidden");
   await check("Shortcut then Enter opens same skill", "document.querySelector('#reader-title').textContent.toLowerCase().includes('frontend')");
   await command("Page.reload");
-  await wait("!document.querySelector('#copy').disabled && !document.querySelector('#reader').hidden");
+  await wait("document.querySelector('#copy') && !document.querySelector('#copy').disabled && !document.querySelector('#reader').hidden");
   await check("Deep link and shortcut survive reload", "document.querySelector('#shortcut').value === 'z'");
   const refExists = await evaluate("!!document.querySelector('#document a[href^=\"/skill/\"]')");
   if (refExists) {

@@ -6,7 +6,7 @@ let preferences;
 try { preferences = JSON.parse(localStorage.getItem(STORAGE) || "{}"); } catch { preferences = {}; }
 if (!preferences || typeof preferences !== "object" || Array.isArray(preferences)) preferences = {};
 preferences.shortcuts ||= {};
-let skills = [], visible = [], selected = null, current = null, request = 0, toastTimer, copying = false;
+let skills = [], examples = [], visible = [], selected = null, current = null, request = 0, toastTimer, copying = false;
 let keys = new Map();
 const metaKey = /Mac|iPhone|iPad/.test(navigator.platform) ? "⌘" : "Ctrl";
 $("focus-search").textContent = metaKey + " K";
@@ -105,7 +105,8 @@ async function load() {
   $("load-error").hidden = true;
   try {
     const result = await json("/api/skills");
-    skills = result.skills; assignKeys(); render();
+    skills = result.skills; examples = result.examples || [];
+    $("examples-link").hidden = !examples.length; assignKeys(); render();
     $("warnings").textContent = result.warnings.join("\n");
     const review = result.review_url;
     let safe = false;
@@ -113,6 +114,7 @@ async function load() {
     $("review").hidden = !safe;
     if (safe) $("review").href = review;
     if (location.pathname.startsWith("/skill/")) await route();
+    else if (new URLSearchParams(location.search).has("examples")) showExamples();
   } catch (error) {
     $("load-error").replaceChildren(el("span", error.message + " "));
     const retry = el("button", "Try again"); retry.onclick = load; $("load-error").append(retry); $("load-error").hidden = false;
@@ -141,13 +143,49 @@ function link(target, title, image) {
   a.onclick = event => { event.preventDefault(); navigate(a.getAttribute("href")); };
   return a;
 }
+function safeExampleLink(url, text, cls = "") {
+  try {
+    const u = new URL(url);
+    if (!["http:", "https:"].includes(u.protocol)) return null;
+    const a = el("a", text, cls); a.href = u.href; a.target = "_blank"; a.rel = "noopener noreferrer"; return a;
+  } catch { return null; }
+}
+function showExamples() {
+  request++; current = null; $("launcher").hidden = true; $("reader").hidden = true;
+  $("examples-page")?.remove();
+  const page = el("main", undefined, "reader-shell examples-page"); page.id = "examples-page";
+  const nav = el("header", undefined, "reader-nav"), back = el("a", "← Skills", "text-button"); back.href = "/"; nav.append(back);
+  const article = el("article", undefined, "reader-article");
+  article.append(el("h1", "Skill examples"), el("p", "Small examples to try, compare, and review.", "example-intro"));
+  if (!examples.length) article.append(el("p", "No examples have been added yet.", "small"));
+  examples.forEach((example, index) => {
+    const section = el("section", undefined, "example-section");
+    section.append(el("h2", (index + 1) + ". " + example.title), el("p", example.description));
+    const actions = el("div", undefined, "example-actions");
+    const primary = safeExampleLink(example.url, example.kind === "video" ? "Watch example ↗" : "Try example ↗", "primary");
+    if (primary) actions.append(primary);
+    const compare = safeExampleLink(example.control_url, "Without the skill ↗"); if (compare) actions.append(compare);
+    section.append(actions);
+    const detail = el("details", undefined, "details"); detail.append(el("summary", "Brief & test record"));
+    if (example.note) detail.append(el("p", example.note, "small"));
+    if (example.brief) detail.append(el("p", example.brief));
+    const notes = safeExampleLink(example.notes_url, "Read first-return notes ↗"); if (notes) detail.append(notes);
+    const review = safeExampleLink(example.review_url, "Open review & feedback ↗"); if (review) detail.append(el("br"), review);
+    section.append(detail); article.append(section);
+  });
+  article.append(el("p", "Examples are starting points for evaluation. Read the brief and test record for what was checked and what remains uncertain.", "small"));
+  page.append(nav, article); document.body.append(page); document.title = "Examples · Skills"; window.scrollTo(0,0);
+}
 function showLauncher(focus = true) {
+  $("examples-page")?.remove();
   request++; current = null; $("reader").hidden = true; $("launcher").hidden = false; document.title = "Skills"; render();
   if (focus) $("launcher").focus({ preventScroll: true });
 }
 function navigate(url) { history.pushState({ skills: true }, "", url); route(); }
 function openSkill(id) { navigate("/skill/" + encodeURIComponent(id)); }
 async function route() {
+  if (new URLSearchParams(location.search).has("examples")) { showExamples(); return; }
+  $("examples-page")?.remove();
   const match = location.pathname.match(/^\/skill\/([a-f0-9]{20})$/);
   if (!match) { showLauncher(); return; }
   if (!skills.some(item => item.id === match[1])) {
@@ -229,6 +267,11 @@ for (const close of document.querySelectorAll(".close")) close.onclick = () => c
 window.addEventListener("popstate", route);
 document.addEventListener("keydown", event => {
   if (event.isComposing || event.repeat || document.querySelector("dialog[open]")) return;
+  if ($("examples-page")) {
+    if (event.key === "Escape") { event.preventDefault(); navigate("/"); }
+    else if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") { event.preventDefault(); navigate("/"); $("find").focus(); }
+    return;
+  }
   const editing = event.target.closest("input,textarea,select,[contenteditable=true]");
   if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
     event.preventDefault();

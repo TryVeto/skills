@@ -94,7 +94,8 @@ class Catalog:
 
     def listing(self):
         return {"skills": [{k: v for k, v in item.items() if not k.startswith("_")} for item in self.items.values()],
-                "warnings": self.warnings, "review_url": self.config.get("review_url", "")}
+                "warnings": self.warnings, "review_url": self.config.get("review_url", ""),
+                "examples": self.config.get("examples", [])}
 
     def document(self, key, relative="SKILL.md"):
         if key not in self.items:
