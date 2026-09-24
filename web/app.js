@@ -27,7 +27,7 @@ function assignKeys() {
 const normalize = s => s.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 function rank(item, query) {
   if (!query) return 1;
-  const name = normalize(item.name + " " + item.folder), haystack = name + " " + normalize(item.description + " " + item.source);
+  const name = normalize(item.name + " " + (item.label || "") + " " + item.folder), haystack = name + " " + normalize(item.description + " " + item.source + " " + (item.group || ""));
   const words = query.split(/\s+/).filter(Boolean);
   if (!words.every(word => haystack.includes(word))) return 0;
   return name.startsWith(query) ? 100 : name.includes(query) ? 80 : words.every(word => name.includes(word)) ? 60 : 20;
@@ -38,22 +38,38 @@ function copyIcon() {
 }
 function render() {
   const query = normalize($("find").value.trim());
+  const groups = new Map();
+  for (const item of skills) groups.set(item.group || "", Math.min(groups.get(item.group || "") ?? Infinity, item.order ?? 1000000));
+  const compare = (a, b) => {
+    if (query) return b.rank - a.rank || a.item.name.localeCompare(b.item.name);
+    const ga = a.item.group || "", gb = b.item.group || "";
+    return (groups.get(ga) - groups.get(gb)) || ga.localeCompare(gb) ||
+      Number(keys.has(b.item.id)) - Number(keys.has(a.item.id)) ||
+      (a.item.order ?? 1000000) - (b.item.order ?? 1000000) || a.item.name.localeCompare(b.item.name);
+  };
   visible = skills.map(item => ({ item, rank: rank(item, query) }))
     .filter(x => x.rank && (!preferences.pinnedOnly || keys.has(x.item.id)))
-    .sort((a, b) => b.rank - a.rank || Number(keys.has(b.item.id)) - Number(keys.has(a.item.id)) || a.item.name.localeCompare(b.item.name))
+    .sort(compare)
     .map(x => x.item);
   if (!visible.some(x => x.id === selected)) selected = visible[0]?.id || null;
   $("results").replaceChildren();
-  let previousPinned = true;
+  let previousPinned = true, previousGroup = null;
   for (const item of visible) {
     const pinned = keys.has(item.id);
-    if (!pinned && previousPinned && $("results").children.length && !query) $("results").append(el("hr", undefined, "group-rule"));
+    const group = item.group || "";
+    if (!query && group !== previousGroup) {
+      if (previousGroup !== null) $("results").append(el("hr", undefined, "group-rule"));
+      if (group) $("results").append(el("h2", group, "group-heading"));
+    } else if (!query && !group && !pinned && previousPinned && $("results").children.length) {
+      $("results").append(el("hr", undefined, "group-rule"));
+    }
+    previousGroup = group;
     previousPinned = pinned;
     const row = el("div", undefined, "skill-row"); row.dataset.id = item.id;
     const open = el("button", undefined, "open-row"); open.type = "button";
     open.setAttribute("aria-label", "Open " + item.name); open.title = item.description || item.name;
     const key = el("span", keys.get(item.id)?.toUpperCase() || "", "shortcut" + (pinned ? "" : " blank")); key.setAttribute("aria-hidden", "true");
-    open.append(key, el("span", item.name, "label"));
+    open.append(key, el("span", item.label || item.name, "label"));
     open.addEventListener("click", () => { selected = item.id; openSkill(item.id); });
     open.addEventListener("focus", () => select(item.id, false));
     const copy = el("button", undefined, "copy-row"); copy.append(copyIcon()); copy.setAttribute("aria-label", "Copy " + item.name); copy.title = "Copy skill" + (pinned ? " · " + keys.get(item.id).toUpperCase() : "");

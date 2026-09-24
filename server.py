@@ -81,7 +81,10 @@ class Catalog:
                     text = read_text(path)
                     name, description, _ = metadata(text, path.parent.name)
                     shortcut = spec.get("shortcuts", {}).get(path.parent.name, "")
+                    display = spec.get("display", {}).get(path.parent.name, {})
                     items[key] = {"id": key, "name": name, "description": description,
+                                  "label": display.get("label", name), "group": display.get("group", ""),
+                                  "order": float(display.get("order", 1000000)),
                                   "source": label, "folder": path.parent.name,
                                   "shortcut": shortcut.lower(), "_path": path}
                 except (OSError, UnicodeError, ValueError):

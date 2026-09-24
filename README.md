@@ -38,6 +38,20 @@ Or copy `config.example.json` to `config.local.json` and edit it:
 
 Shortcut defaults use the skill's directory name. Roots can point to a collection or a single skill package. Search matches titles, directory names, descriptions, and source labels. Refresh picks up file additions and changes. Duplicate paths are indexed once.
 
+## Organize the list
+
+Each root can include an optional `display` map keyed by skill directory name:
+
+```json
+"display": {
+  "frontend-design": { "label": "Design a product interface", "group": "Product", "order": 1 },
+  "landing-page": { "label": "Design a landing page", "group": "Marketing", "order": 2 },
+  "video": { "label": "Produce a video", "group": "Marketing", "order": 3 }
+}
+```
+
+Labels describe the task; groups keep related work together. Lower order values appear first; pinned skills lead within each group. Search flattens the groups and matches both task labels and original skill names. The reader and copied source retain the original skill text. Restart the server after changing configuration.
+
 ## Keyboard
 
 | Key | Action |
